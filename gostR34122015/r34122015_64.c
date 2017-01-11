@@ -1,6 +1,6 @@
 #include "r34122015.h"
 
-uint8_t pi64[4][256] = 
+const uint8_t pi64[4][256] =
 {
 	{ 
 		0x6C, 0x64, 0x66, 0x62, 0x6A, 0x65, 0x6B, 0x69, 0x6E, 0x68, 0x6D, 0x67, 0x60, 0x63, 0x6F, 0x61,
@@ -99,7 +99,7 @@ void g64(BLOCK32 a0, const BLOCK32 ki)
 
 void KeySchedule64(uint8_t pwd[32])
 {
-	for(int8_t i = 7, pwd_i = 0; i >= 0; i--, pwd_i++)
+    for(size_t i = 7, pwd_i = 0; i >= 0; i--, pwd_i++)
 	{
 		K64[i][3] = K64[i + 8][3] = K64[i + 16][3] = pwd[pwd_i * 4 + 3];
 		K64[i][2] = K64[i + 8][2] = K64[i + 16][2] = pwd[pwd_i * 4 + 2];
@@ -140,7 +140,7 @@ void G64Star(BLOCK32 a1, BLOCK32 a0, const BLOCK32 ki, BLOCK64 out)
 	memset(tmp, 0x00, BLOCK32SIZE);
 }
 
-void E64(BLOCK64 a)
+void encrypt64(BLOCK64 a)
 {
 	BLOCK32 a0 = {0}, a1 = {0};
 	memcpy(a0, a, BLOCK32SIZE);
@@ -156,13 +156,13 @@ void E64(BLOCK64 a)
 	memset(a0, 0x00, BLOCK32SIZE);
 }
 
-void D64(BLOCK64 a)
+void decrypt64(BLOCK64 a)
 {
 	BLOCK32 a0 = {0}, a1 = {0};
 	memcpy(a0, a, BLOCK32SIZE);
 	memcpy(a1, a + BLOCK32SIZE, BLOCK32SIZE);
 
-	for(int8_t i = 31; i >= 1; i--)
+    for(size_t i = 31; i >= 1; i--)
 	{
 		G64(a1, a0, K64[i]);
 	}

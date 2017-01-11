@@ -1,7 +1,65 @@
 #include <stdio.h>
-#include "r34122015.h"
+#include <stdint.h>
+#include <conio.h>
 
-int main()
+#include "r34122015.h"
+#include "generating_tables.h"
+
+int main(int argc, char *argv[])
 {
-	return 0;
+    generateCoeffPositionTable();
+    generateLinearTable();
+
+    uint8_t test128s[] = { 0x00, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff };
+    S128(test128s);
+    printB128(test128s);
+    S128(test128s);
+    printB128(test128s);
+    S128(test128s);
+    printB128(test128s);
+    S128(test128s);
+    printB128(test128s);
+    printf("\n");
+
+    uint8_t test128r[] = { 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+    R128(test128r);
+    printB128(test128r);
+    R128(test128r);
+    printB128(test128r);
+    R128(test128r);
+    printB128(test128r);
+    R128(test128r);
+    printB128(test128r);
+    printf("\n");
+
+    uint8_t test128l[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x94, 0xa5, 0x64 };
+    L128(test128l);
+    printB128(test128l);
+    L128(test128l);
+    printB128(test128l);
+    L128(test128l);
+    printB128(test128l);
+    L128(test128l);
+    printB128(test128l);
+    printf("\n");
+
+    uint8_t test128[] = { 0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x00, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11 };
+    BLOCK128 out;
+    memcpy_s(out, BLOCK128SIZE, test128, BLOCK128SIZE);
+
+    uint8_t test_key[] = { 0xef, 0xcd, 0xab, 0x89, 0x67, 0x45, 0x23, 0x01, 0x10, 0x32, 0x54, 0x76, 0x98, 0xba, 0xdc, 0xfe,
+                           0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x00, 0xff, 0xee, 0xdd, 0xcc, 0xbb, 0xaa, 0x99, 0x88 };
+
+    KeySchedule128(test_key);
+    print128key(K128);
+
+    encrypt128(out);
+    printB128(out);
+    decrypt128(out);
+    printB128(out);
+
+
+    printf("all done");
+    getchar();
+    return 0;
 }

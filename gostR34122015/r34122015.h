@@ -47,24 +47,17 @@ void S128inv(BLOCK128 a);
 void R128inv(BLOCK128);
 void L128inv(BLOCK128 a0);
 void KeySchedule128(uint8_t pwd[32]);
-void E128(BLOCK128 a);
-void D128(BLOCK128 a);
+void encrypt128(BLOCK128 a);
+void decrypt128(BLOCK128 a);
 
-uint8_t pi128[256];
-uint8_t invPi128[256];
-uint8_t coeffL128[BLOCK128SIZE];
-uint8_t C128[32][16];
 uint8_t K128[10][BLOCK128SIZE];
-uint8_t GM[8][256];
-uint8_t K_POS[256];
 
 void T64(BLOCK32 a0);
 void g64(BLOCK32 a0, const BLOCK32 ki);
 void G64(BLOCK32 a1, BLOCK32 a0, const BLOCK32 ki);
 void G64Star(BLOCK32 a1, BLOCK32 a0, const BLOCK32 ki, BLOCK64 out);
 void KeySchedule64(uint8_t pwd[32]);
-void E64(BLOCK64 a);
-void D64(BLOCK64 a);
+void encrypt64(BLOCK64 a);
+void decrypt64(BLOCK64 a);
 
-uint8_t pi64[4][256];
 uint8_t K64[32][4];
