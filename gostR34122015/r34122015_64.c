@@ -119,32 +119,34 @@ void KeySchedule64(uint8_t pwd[32])
 void G64(BLOCK32 a1, BLOCK32 a0, const BLOCK32 ki)
 {
 	BLOCK32 tmp = {0};
-	memcpy(tmp, a0, BLOCK32SIZE);
+    memcpy_s(tmp, BLOCK32SIZE, a0, BLOCK32SIZE);
 
 	g64(a0, ki);
 	X32(a0, a1, a0);
 
-	memcpy(a1, tmp, BLOCK32SIZE);
+    memcpy_s(a1, BLOCK32SIZE, tmp, BLOCK32SIZE);
 	memset(tmp, 0x00, BLOCK32SIZE);
 }
 
 void G64Star(BLOCK32 a1, BLOCK32 a0, const BLOCK32 ki, BLOCK64 out)
 {
 	BLOCK32 tmp = {0};
-	memcpy(tmp, a0, BLOCK32SIZE);
+    memcpy_s(tmp, BLOCK32SIZE, a0, BLOCK32SIZE);
 
 	g64(a0, ki);
 	X32(a0, a1, a0);
-	memcpy(out + BLOCK32SIZE, a0, BLOCK32SIZE);
-	memcpy(out, tmp, BLOCK32SIZE);
+
+    memcpy_s(out + BLOCK32SIZE, BLOCK32SIZE, a0, BLOCK32SIZE);
+    memcpy_s(out, BLOCK32SIZE, tmp, BLOCK32SIZE);
+
 	memset(tmp, 0x00, BLOCK32SIZE);
 }
 
 void encrypt64(BLOCK64 a)
 {
 	BLOCK32 a0 = {0}, a1 = {0};
-	memcpy(a0, a, BLOCK32SIZE);
-	memcpy(a1, a + BLOCK32SIZE, BLOCK32SIZE);
+    memcpy_s(a0, BLOCK32SIZE, a, BLOCK32SIZE);
+    memcpy_s(a1, BLOCK32SIZE, a + BLOCK32SIZE, BLOCK32SIZE);
 
 	for(size_t i = 0; i < 31; i++)
 	{
@@ -159,8 +161,8 @@ void encrypt64(BLOCK64 a)
 void decrypt64(BLOCK64 a)
 {
 	BLOCK32 a0 = {0}, a1 = {0};
-	memcpy(a0, a, BLOCK32SIZE);
-	memcpy(a1, a + BLOCK32SIZE, BLOCK32SIZE);
+    memcpy_s(a0, BLOCK32SIZE, a, BLOCK32SIZE);
+    memcpy_s(a1, BLOCK32SIZE, a + BLOCK32SIZE, BLOCK32SIZE);
 
     for(size_t i = 31; i >= 1; i--)
 	{
