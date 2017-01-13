@@ -1,6 +1,6 @@
 #include "r34122015.h"
 
-const uint8_t pi64[4][256] =
+static const uint8_t pi64[4][256] =
 {
 	{ 
 		0x6C, 0x64, 0x66, 0x62, 0x6A, 0x65, 0x6B, 0x69, 0x6E, 0x68, 0x6D, 0x67, 0x60, 0x63, 0x6F, 0x61,
@@ -76,64 +76,64 @@ const uint8_t pi64[4][256] =
 	}
 };
 
-void T64(BLOCK32 a0)
+void T64(BLOCK32 a)
 {
 	for(size_t i = 0; i < BLOCK32SIZE; i++)
 	{
-		a0[i] = pi64[i][a0[i]];
+        a[i] = pi64[i][a[i]];
 	}
 }
 
-void g64(BLOCK32 a0, const BLOCK32 ki)
+void g64(BLOCK32 a, const BLOCK32 round_key)
 {
-	uint32_t _a = *(uint32_t*)a0;
-	uint32_t _ki = *(uint32_t*)ki;
-	uint32_t result = _a + _ki;
+    uint32_t _a = *(uint32_t*)a;
+    uint32_t _round_key = *(uint32_t*)round_key;
+    uint32_t result = _a + _round_key;
 	T64((uint8_t*)&result);
 	uint32_t high11 = (result & HIGH11) >> 21;
 	result <<= 11;
 	result |= high11;
-	*(uint32_t*)a0 = result;
-	_a = _ki = result = 0x00;
+    *(uint32_t*)a = result;
+    _a = _round_key = result = 0x00;
 }
 
-void KeySchedule64(uint8_t pwd[32])
+void KeySchedule64(uint8_t pwd[32], gost64_key *key)
 {
-    for(size_t i = 7, pwd_i = 0; i >= 0; i--, pwd_i++)
+    for(int i = 7, pwd_i = 0; i >= 0; i--, pwd_i++)
 	{
-		K64[i][3] = K64[i + 8][3] = K64[i + 16][3] = pwd[pwd_i * 4 + 3];
-		K64[i][2] = K64[i + 8][2] = K64[i + 16][2] = pwd[pwd_i * 4 + 2];
-		K64[i][1] = K64[i + 8][1] = K64[i + 16][1] = pwd[pwd_i * 4 + 1];
-		K64[i][0] = K64[i + 8][0] = K64[i + 16][0] = pwd[pwd_i * 4];
+        key->rd_key[i][3] = key->rd_key[i + 8][3] = key->rd_key[i + 16][3] = pwd[pwd_i * 4 + 3];
+        key->rd_key[i][2] = key->rd_key[i + 8][2] = key->rd_key[i + 16][2] = pwd[pwd_i * 4 + 2];
+        key->rd_key[i][1] = key->rd_key[i + 8][1] = key->rd_key[i + 16][1] = pwd[pwd_i * 4 + 1];
+        key->rd_key[i][0] = key->rd_key[i + 8][0] = key->rd_key[i + 16][0] = pwd[pwd_i * 4];
 	}
 
-	for(int8_t i = 7; i >= 0; i--)
+    for(int i = 7; i >= 0; i--)
 	{
-		K64[i + 24][3] = K64[7 - i][3];
-		K64[i + 24][2] = K64[7 - i][2];
-		K64[i + 24][1] = K64[7 - i][1];
-		K64[i + 24][0] = K64[7 - i][0];
+        key->rd_key[i + 24][3] = key->rd_key[7 - i][3];
+        key->rd_key[i + 24][2] = key->rd_key[7 - i][2];
+        key->rd_key[i + 24][1] = key->rd_key[7 - i][1];
+        key->rd_key[i + 24][0] = key->rd_key[7 - i][0];
 	}
 }
 
-void G64(BLOCK32 a1, BLOCK32 a0, const BLOCK32 ki)
+void G64(BLOCK32 a1, BLOCK32 a0, const BLOCK32 round_key)
 {
 	BLOCK32 tmp = {0};
     memcpy_s(tmp, BLOCK32SIZE, a0, BLOCK32SIZE);
 
-	g64(a0, ki);
+    g64(a0, round_key);
 	X32(a0, a1, a0);
 
     memcpy_s(a1, BLOCK32SIZE, tmp, BLOCK32SIZE);
 	memset(tmp, 0x00, BLOCK32SIZE);
 }
 
-void G64Star(BLOCK32 a1, BLOCK32 a0, const BLOCK32 ki, BLOCK64 out)
+void G64Star(BLOCK32 a1, BLOCK32 a0, const BLOCK32 round_key, BLOCK64 out)
 {
 	BLOCK32 tmp = {0};
     memcpy_s(tmp, BLOCK32SIZE, a0, BLOCK32SIZE);
 
-	g64(a0, ki);
+    g64(a0, round_key);
 	X32(a0, a1, a0);
 
     memcpy_s(out + BLOCK32SIZE, BLOCK32SIZE, a0, BLOCK32SIZE);
@@ -142,33 +142,33 @@ void G64Star(BLOCK32 a1, BLOCK32 a0, const BLOCK32 ki, BLOCK64 out)
 	memset(tmp, 0x00, BLOCK32SIZE);
 }
 
-void encrypt64(BLOCK64 a)
+void gost_r3412_64_encrypt(const BLOCK64 in, BLOCK64 out, gost64_key *key)
 {
 	BLOCK32 a0 = {0}, a1 = {0};
-    memcpy_s(a0, BLOCK32SIZE, a, BLOCK32SIZE);
-    memcpy_s(a1, BLOCK32SIZE, a + BLOCK32SIZE, BLOCK32SIZE);
+    memcpy_s(a0, BLOCK32SIZE, in, BLOCK32SIZE);
+    memcpy_s(a1, BLOCK32SIZE, in + BLOCK32SIZE, BLOCK32SIZE);
 
-	for(size_t i = 0; i < 31; i++)
+    for(size_t i = 0; i < GOST64_ROUNDS_COUNT - 1; i++)
 	{
-		G64(a1, a0, K64[i]);
+        G64(a1, a0, key->rd_key[i]);
 	}
-	G64Star(a1, a0, K64[31], a);
+    G64Star(a1, a0, key->rd_key[GOST64_ROUNDS_COUNT - 1], out);
 	
 	memset(a1, 0x00, BLOCK32SIZE);
 	memset(a0, 0x00, BLOCK32SIZE);
 }
 
-void decrypt64(BLOCK64 a)
+void gost_r3412_64_decrypt(const BLOCK64 in, BLOCK64 out, gost64_key *key)
 {
 	BLOCK32 a0 = {0}, a1 = {0};
-    memcpy_s(a0, BLOCK32SIZE, a, BLOCK32SIZE);
-    memcpy_s(a1, BLOCK32SIZE, a + BLOCK32SIZE, BLOCK32SIZE);
+    memcpy_s(a0, BLOCK32SIZE, in, BLOCK32SIZE);
+    memcpy_s(a1, BLOCK32SIZE, in + BLOCK32SIZE, BLOCK32SIZE);
 
-    for(size_t i = 31; i >= 1; i--)
+    for(size_t i = GOST64_ROUNDS_COUNT - 1; i >= 1; i--)
 	{
-		G64(a1, a0, K64[i]);
+        G64(a1, a0, key->rd_key[i]);
 	}
-	G64Star(a1, a0, K64[0], a);
+    G64Star(a1, a0, key->rd_key[0], out);
 
 	memset(a1, 0x00, BLOCK32SIZE);
 	memset(a0, 0x00, BLOCK32SIZE);

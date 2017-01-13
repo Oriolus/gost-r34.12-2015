@@ -6,19 +6,46 @@ void printB128(BLOCK128 a)
     for(size_t i = 0; i < BLOCK128SIZE; i++)
         if(a[i] > 0xf) printf("0x%X ", a[i]);
         else printf("0x0%X ", a[i]);
+    printf("\n");
 }
 
-void print128key(uint8_t K128[10][16])
+void print128key(gost128_key *key)
 {
-    for(size_t i = 0; i < 10; i++)
+    for(size_t i = 0; i < GOST128_ROUND_KEYS_COUNT; i++)
     {
-        for(size_t j = 0; j < BLOCK128SIZE; j++)
-            if(K128[i][j] > 0xf) printf("0x%X ", K128[i][j]);
-            else printf("0x0%X ", K128[i][j]);
+        for(size_t j = 0; j < GOST128_ROUND_KEY_SIZE; j++)
+            if(key->rd_key[i][j] > 0xf) printf("0x%X ", key->rd_key[i][j]);
+            else printf("0x0%X ", key->rd_key[i][j]);
         printf("\n");
     }
 }
 
+void printB64(BLOCK64 a)
+{
+    for(size_t i = 0; i < BLOCK64SIZE; i++)
+        if(a[i] > 0xf) printf("0x%X ", a[i]);
+        else printf("0x0%X ", a[i]);
+    printf("\n");
+}
+
+void printB32(BLOCK32 a)
+{
+    for(size_t i = 0; i < BLOCK32SIZE; i++)
+        if(a[i] > 0xf) printf("0x%X ", a[i]);
+        else printf("0x0%X ", a[i]);
+    printf("\n");
+}
+
+void print64key(gost64_key *key)
+{
+    for(size_t i = 0; i < GOST64_ROUND_KEYS_COUNT; i++)
+    {
+        for(size_t j = 0; j < GOST64_ROUND_KEY_SIZE; j++)
+            if(key->rd_key[i][j] > 0xf) printf("0x%X ", key->rd_key[i][j]);
+            else printf("0x0%X ", key->rd_key[i][j]);
+        printf("\n");
+    }
+}
 
 uint16_t multiply(uint16_t lhs, uint16_t rhs)
 {

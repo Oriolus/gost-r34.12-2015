@@ -1,11 +1,10 @@
 #include "r34122015.h"
 
-const uint8_t coeffL128[BLOCK128SIZE] =
+static const uint8_t coeffL128[BLOCK128SIZE] =
 {
     0x01, 0x94, 0x20, 0x85, 0x10, 0xC2, 0xC0, 0x01, 0xFB, 0x01, 0xC0, 0xC2, 0x10, 0x85, 0x20, 0x94
 };
-
-const uint8_t pi128[256] =
+static const uint8_t pi128[256] =
 {
 	0xFC, 0xEE, 0xDD, 0x11, 0xCF, 0x6E, 0x31, 0x16, 0xFB, 0xC4, 0xFA, 0xDA, 0x23, 0xC5, 0x04, 0x4D,
 	0xE9, 0x77, 0xF0, 0xDB, 0x93, 0x2E, 0x99, 0xBA, 0x17, 0x36, 0xF1, 0xBB, 0x14, 0xCD, 0x5F, 0xC1,
@@ -24,7 +23,7 @@ const uint8_t pi128[256] =
 	0x20, 0x71, 0x67, 0xA4, 0x2D, 0x2B, 0x09, 0x5B, 0xCB, 0x9B, 0x25, 0xD0, 0xBE, 0xE5, 0x6C, 0x52,
 	0x59, 0xA6, 0x74, 0xD2, 0xE6, 0xF4, 0xB4, 0xC0, 0xD1, 0x66, 0xAF, 0xC2, 0x39, 0x4B, 0x63, 0xB6
 };
-const uint8_t invPi128[256] =
+static const uint8_t invPi128[256] =
 {
 	0xA5, 0x2D, 0x32, 0x8F, 0x0E, 0x30, 0x38, 0xC0, 0x54, 0xE6, 0x9E, 0x39, 0x55, 0x7E, 0x52, 0x91,
 	0x64, 0x03, 0x57, 0x5A, 0x1C, 0x60, 0x07, 0x18, 0x21, 0x72, 0xA8, 0xD1, 0x29, 0xC6, 0xA4, 0x3F,
@@ -43,7 +42,7 @@ const uint8_t invPi128[256] =
 	0x90, 0xD0, 0x24, 0x34, 0xCB, 0xED, 0xF4, 0xCE, 0x99, 0x10, 0x44, 0x40, 0x92, 0x3A, 0x01, 0x26,
 	0x12, 0x1A, 0x48, 0x68, 0xF5, 0x81, 0x8B, 0xC7, 0xD6, 0x20, 0x0A, 0x08, 0x00, 0x4C, 0xD7, 0x74
 };
-const uint8_t C128[32][16] =
+static const uint8_t C128[32][16] =
 {
 	{ 0x01, 0x94, 0x84, 0xDD, 0x10, 0xBD, 0x27, 0x5D, 0xB8, 0x7A, 0x48, 0x6C, 0x72, 0x76, 0xA2, 0x6E },
 	{ 0x02, 0xEB, 0xCB, 0x79, 0x20, 0xB9, 0x4E, 0xBA, 0xB3, 0xF4, 0x90, 0xD8, 0xE4, 0xEC, 0x87, 0xDC },
@@ -78,7 +77,7 @@ const uint8_t C128[32][16] =
 	{ 0x1F, 0x14, 0x27, 0x3F, 0x33, 0x95, 0x3B, 0x64, 0xF6, 0x5F, 0x34, 0x2E, 0xA7, 0xDB, 0x03, 0x10 },
 	{ 0x20, 0xA8, 0xED, 0x9C, 0x45, 0xC1, 0x6A, 0xF1, 0x61, 0x9B, 0x14, 0x1E, 0x58, 0xD8, 0xA7, 0x5E }
 };
-const uint8_t GM[8][256] =
+static const uint8_t GM[8][256] =
 {
     {
         0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
@@ -225,7 +224,7 @@ const uint8_t GM[8][256] =
         0x0C, 0xF7, 0x39, 0xC2, 0x66, 0x9D, 0x53, 0xA8, 0xD8, 0x23, 0xED, 0x16, 0xB2, 0x49, 0x87, 0x7C
     }
 };
-const uint8_t K_POS[256] =
+static const uint8_t K_POS[256] =
 {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -270,98 +269,100 @@ void S128inv(BLOCK128 a)
 	}
 }
 
-void R128(BLOCK128 a0)
+void R128(BLOCK128 a)
 {
 	uint8_t tmp = 0;
 	for(size_t i = 0; i < BLOCK128SIZE; i++)
 	{
-		tmp ^= GM[K_POS[coeffL128[i]]][a0[i]];
+        tmp ^= GM[K_POS[coeffL128[i]]][a[i]];
 	}
-    memcpy_s(a0, BLOCK128SIZE - 1, a0 + 1, BLOCK128SIZE - 1);
-	a0[BLOCK128SIZE - 1] = tmp;
+    memcpy_s(a, BLOCK128SIZE - 1, a + 1, BLOCK128SIZE - 1);
+    a[BLOCK128SIZE - 1] = tmp;
     tmp = 0x00;
 }
-void R128inv(BLOCK128 a0)
+void R128inv(BLOCK128 a)
 {
-	uint8_t tmp = a0[BLOCK128SIZE - 1];
-    memmove_s(a0 + 1, BLOCK128SIZE - 1, a0, BLOCK128SIZE - 1);
-	a0[0] = tmp;
+    uint8_t tmp = a[BLOCK128SIZE - 1];
+    memmove_s(a + 1, BLOCK128SIZE - 1, a, BLOCK128SIZE - 1);
+    a[0] = tmp;
 	tmp = 0;
 	for(size_t i = 0; i < BLOCK128SIZE; i++)
 	{
-		tmp ^= GM[K_POS[coeffL128[i]]][a0[i]];
+        tmp ^= GM[K_POS[coeffL128[i]]][a[i]];
 	}
-	a0[0] = tmp;
-	tmp = 0;
+    a[0] = tmp;
+    tmp = 0x00;
 }
 
-void L128(BLOCK128 a0)
+void L128(BLOCK128 a)
 {
 	for(size_t i = 0; i < BLOCK128SIZE; i++)
 	{
-		R128(a0);
+        R128(a);
 	}
 }
-void L128inv(BLOCK128 a0)
+void L128inv(BLOCK128 a)
 {
 	for(size_t i = 0; i < BLOCK128SIZE; i++)
 	{
-		R128inv(a0);
+        R128inv(a);
 	}
 }
 
-void F128(BLOCK128 a0, BLOCK128 a1, const BLOCK128 c)
+void F128(BLOCK128 a, BLOCK128 a1, const BLOCK128 c)
 {
-	BLOCK128 tmp = {0};
-    memcpy_s(tmp, BLOCK128SIZE, a0, BLOCK128SIZE);
+    BLOCK128 tmp = {0};
+    memcpy_s(tmp, BLOCK128SIZE, a, BLOCK128SIZE);
 
-	X128(a0, c, a0);
-	S128(a0);
-	L128(a0);
-	X128(a0, a1, a0);
+    X128(a, c, a);
+    S128(a);
+    L128(a);
+    X128(a, a1, a);
     memcpy_s(a1, BLOCK128SIZE, tmp, BLOCK128SIZE);
 	memset(tmp, 0x00, BLOCK128SIZE);
 }
 
-void KeySchedule128(uint8_t pwd[32])
+void KeySchedule128(uint8_t pwd[32], gost128_key *key)
 {
-	BLOCK128 tmp = {0};
-    memcpy_s(K128[0], BLOCK128SIZE, pwd + BLOCK128SIZE, BLOCK128SIZE);
-    memcpy_s(K128[1], BLOCK128SIZE, pwd, BLOCK128SIZE);
+    uint8_t tmp[GOST128_ROUND_KEY_SIZE] = {0};
+    memcpy_s(key->rd_key[0], GOST128_ROUND_KEY_SIZE, pwd + GOST128_ROUND_KEY_SIZE, GOST128_ROUND_KEY_SIZE);
+    memcpy_s(key->rd_key[1], GOST128_ROUND_KEY_SIZE, pwd, GOST128_ROUND_KEY_SIZE);
 
 	for(size_t i = 1; i < 5; i++)
 	{
-        memcpy_s(K128[2 * i + 1], BLOCK128SIZE, K128[2 * i - 2], BLOCK128SIZE);
-        memcpy_s(K128[2 * i], BLOCK128SIZE, K128[2 * i - 1], BLOCK128SIZE);
+        memcpy_s(key->rd_key[2 * i + 1], GOST128_ROUND_KEY_SIZE, key->rd_key[2 * i - 2], GOST128_ROUND_KEY_SIZE);
+        memcpy_s(key->rd_key[2 * i], GOST128_ROUND_KEY_SIZE, key->rd_key[2 * i - 1], GOST128_ROUND_KEY_SIZE);
 		for(size_t j = 0; j < 8; j++)
 		{
-			F128(K128[2 * i + 1], K128[2 * i], C128[8 * (i - 1) + j]);
+            F128(key->rd_key[2 * i + 1], key->rd_key[2 * i], C128[8 * (i - 1) + j]);
 		}
-        memcpy_s(tmp, BLOCK128SIZE, K128[2 * i + 1], BLOCK128SIZE);
-        memcpy_s(K128[2 * i + 1], BLOCK128SIZE, K128[2 * i], BLOCK128SIZE);
-        memcpy_s(K128[2 * i], BLOCK128SIZE, tmp, BLOCK128SIZE);
+        memcpy_s(tmp, GOST128_ROUND_KEY_SIZE, key->rd_key[2 * i + 1], GOST128_ROUND_KEY_SIZE);
+        memcpy_s(key->rd_key[2 * i + 1], GOST128_ROUND_KEY_SIZE, key->rd_key[2 * i], GOST128_ROUND_KEY_SIZE);
+        memcpy_s(key->rd_key[2 * i], GOST128_ROUND_KEY_SIZE, tmp, GOST128_ROUND_KEY_SIZE);
     }
-	memset(tmp, 0x00, BLOCK128SIZE);
+    memset(tmp, 0x00, GOST128_ROUND_KEY_SIZE);
 }
 
-void encrypt128(BLOCK128 a)
+void gost_r3412_128_encrypt_block(const BLOCK128 in, BLOCK128 out, gost128_key *key)
 {
-	for(size_t i = 0; i < 9; i++)
+    memcpy_s(out, BLOCK128SIZE, in, BLOCK128SIZE);
+    for(size_t i = 0; i < GOST128_ROUNDS_COUNT - 1; i++)
 	{
-		X128(a, K128[i], a);
-		S128(a);
-		L128(a);
+        X128(out, key->rd_key[i], out);
+        S128(out);
+        L128(out);
 	}
-	X128(a, K128[9], a);
+    X128(out, key->rd_key[GOST128_ROUNDS_COUNT - 1], out);
 }
 
-void decrypt128(BLOCK128 a)
+void gost_r3415_128_decrypt_block(const BLOCK128 in, BLOCK128 out, gost128_key *key)
 {
-    for(size_t i = 9; i > 0; i--)
+    memcpy_s(out, BLOCK128SIZE, in, BLOCK128SIZE);
+    for(size_t i = GOST128_ROUNDS_COUNT - 1; i > 0; i--)
 	{
-		X128(a, K128[i], a);
-		L128inv(a);
-		S128inv(a);
+        X128(out, key->rd_key[i], out);
+        L128inv(out);
+        S128inv(out);
 	}
-	X128(a, K128[0], a);
+    X128(out, key->rd_key[0], out);
 }

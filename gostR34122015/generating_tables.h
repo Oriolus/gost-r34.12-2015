@@ -10,5 +10,8 @@ void generateLinearTable();
 void generateCoeffPositionTable();
 
 void printB128(BLOCK128 a);
-void print128key(uint8_t K128[10][16]);
+void print128key(gost128_key *key);
 
+void printB64(BLOCK64 a);
+void printB32(BLOCK32 a);
+void print64key(gost64_key *key);
