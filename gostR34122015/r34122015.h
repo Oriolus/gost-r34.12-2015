@@ -73,5 +73,5 @@ void G64(BLOCK32 a1, BLOCK32 a0, const BLOCK32 round_key);
 void G64Star(BLOCK32 a1, BLOCK32 a0, const BLOCK32 round_key, BLOCK64 out);
 void KeySchedule64(uint8_t pwd[32], gost64_key *key);
 
-void gost_r3412_64_encrypt(const BLOCK64 in, BLOCK64 out, gost64_key *key);
-void gost_r3412_64_decrypt(const BLOCK64 in, BLOCK64 out, gost64_key *key);
+void gost_r3412_64_encrypt_block(const BLOCK64 in, BLOCK64 out, gost64_key *key);
+void gost_r3412_64_decrypt_block(const BLOCK64 in, BLOCK64 out, gost64_key *key);

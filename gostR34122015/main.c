@@ -116,12 +116,12 @@ int main(int argc, char *argv[])
 
     printf("\n\nEncrypted text\n\n");
     BLOCK64 out64;
-    gost_r3412_64_encrypt(test64, out64, &key64);
+    gost_r3412_64_encrypt_block(test64, out64, &key64);
     printB64(out64);
 
     printf("\n\nDecrypted text\n\n");
     BLOCK128 decrypted64 = { 0 };
-    gost_r3412_64_decrypt(out64, decrypted64, &key64);
+    gost_r3412_64_decrypt_block(out64, decrypted64, &key64);
     printB64(decrypted64);
 
 

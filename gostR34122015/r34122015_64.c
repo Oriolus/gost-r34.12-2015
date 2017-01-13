@@ -142,7 +142,7 @@ void G64Star(BLOCK32 a1, BLOCK32 a0, const BLOCK32 round_key, BLOCK64 out)
 	memset(tmp, 0x00, BLOCK32SIZE);
 }
 
-void gost_r3412_64_encrypt(const BLOCK64 in, BLOCK64 out, gost64_key *key)
+void gost_r3412_64_encrypt_block(const BLOCK64 in, BLOCK64 out, gost64_key *key)
 {
 	BLOCK32 a0 = {0}, a1 = {0};
     memcpy_s(a0, BLOCK32SIZE, in, BLOCK32SIZE);
@@ -158,7 +158,7 @@ void gost_r3412_64_encrypt(const BLOCK64 in, BLOCK64 out, gost64_key *key)
 	memset(a0, 0x00, BLOCK32SIZE);
 }
 
-void gost_r3412_64_decrypt(const BLOCK64 in, BLOCK64 out, gost64_key *key)
+void gost_r3412_64_decrypt_block(const BLOCK64 in, BLOCK64 out, gost64_key *key)
 {
 	BLOCK32 a0 = {0}, a1 = {0};
     memcpy_s(a0, BLOCK32SIZE, in, BLOCK32SIZE);
