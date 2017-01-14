@@ -4,10 +4,14 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += main.c \
-    r34122015_64.c \
-    r34122015_128.c \
-    generating_tables.c
+    generating_tables.c \
+    r34122015_core.c \
+    gost_2015.c
 
 HEADERS += \
-    r34122015.h \
-    generating_tables.h
+    generating_tables.h \
+    r34122015_types.h \
+    r34122015_core.h \
+    gost_2015.h
+
+DISTFILES +=
