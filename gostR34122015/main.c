@@ -158,18 +158,21 @@ int main(int argc, char *argv[])
     gost_key key;
     gost_2015_set_key(key_arr, 128, &key);
 
-    uint8_t ecb_pt[] =
+    uint8_t pt[] =
     {
         0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x00, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11,
         0x0a, 0xff, 0xee, 0xcc, 0xbb, 0xaa, 0x99, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x00,
         0x00, 0x0a, 0xff, 0xee, 0xcc, 0xbb, 0xaa, 0x99, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11,
-        0x11, 0x00, 0x0a, 0xff, 0xee, 0xcc, 0xbb, 0xaa, 0x99, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22
+        0x11, 0x00, 0x0a, 0xff, 0xee, 0xcc, 0xbb, 0xaa, 0x99, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33//, 0x22
     };
+
+
+    /*
     size_t ecb_ct_size = 0;
-    gost_2015_ecb_encrypt(ecb_pt, arraysize(ecb_pt), NULL, &ecb_ct_size, &key);
+    gost_2015_ecb_encrypt(pt, arraysize(pt), NULL, &ecb_ct_size, &key);
     printf("ecb_ct SIZE: %zd\n", ecb_ct_size);
     uint8_t *ecb_ct = (uint8_t*)malloc(ecb_ct_size);
-    gost_2015_ecb_encrypt(ecb_pt, arraysize(ecb_pt), ecb_ct, &ecb_ct_size, &key);
+    gost_2015_ecb_encrypt(pt, arraysize(pt), ecb_ct, &ecb_ct_size, &key);
     printBas(ecb_ct, ecb_ct_size);
     printf("\n\n");
 
@@ -182,7 +185,69 @@ int main(int argc, char *argv[])
 
     free(ecb_ct);
     free(ecb_pt_01);
+    */
 
+    /*
+    BLOCK64 iv_128_ctr = { 0xf0, 0xce, 0xab, 0x90, 0x78, 0x56, 0x34, 0x12 };
+    size_t ctr_ct_size = 0;
+    gost_2015_ctr_encrypt(pt, arraysize(pt), iv_128_ctr, arraysize(iv_128_ctr), NULL, &ctr_ct_size, &key);
+    printf("CTR ciphertext size: %zd\n", ctr_ct_size);
+    uint8_t *ctr_ct = (uint8_t*)malloc(ctr_ct_size);
+    gost_2015_ctr_encrypt(pt, arraysize(pt), iv_128_ctr, arraysize(iv_128_ctr), ctr_ct, &ctr_ct_size, &key);
+    printBas(ctr_ct, ctr_ct_size);
+
+    size_t ctr_pt_size = 0;
+    gost_2015_ctr_decrypt(ctr_ct, ctr_ct_size, iv_128_ctr, arraysize(iv_128_ctr), NULL, &ctr_pt_size, &key);
+    printf("CTR plaintext size: %zd\n", ctr_pt_size);
+    uint8_t *ctr_pt_01 = (uint8_t*)malloc(ctr_pt_size);
+    gost_2015_ctr_decrypt(ctr_ct, ctr_ct_size, iv_128_ctr, arraysize(iv_128_ctr), ctr_pt_01, &ctr_pt_size, &key);
+    printBas(ctr_pt_01, ctr_pt_size);
+
+    free(ctr_pt_01);
+    free(ctr_ct);
+    */
+
+    /*
+    uint8_t iv_128_ofb[] = { 0x19, 0x18, 0x17, 0x16, 0x15, 0x14, 0x13, 0x12, 0x90, 0x89, 0x78, 0x67, 0x56, 0x45, 0x34, 0x23,
+                             0x12, 0x01, 0xf0, 0xe5, 0xd4, 0xc3, 0xb2, 0xa1, 0xf0, 0xce, 0xab, 0x90, 0x78, 0x56, 0x34, 0x12 };
+
+    size_t ofb_ct_size = 0;
+    gost_2015_ofb_encrypt(pt, arraysize(pt), iv_128_ofb, arraysize(iv_128_ofb), NULL, &ofb_ct_size, &key);
+    printf("OFB ciphertext size: %zd\n", ofb_ct_size);
+    uint8_t *ofb_ct = (uint8_t*)malloc(ofb_ct_size);
+    gost_2015_ofb_encrypt(pt, arraysize(pt), iv_128_ofb, arraysize(iv_128_ofb), ofb_ct, &ofb_ct_size, &key);
+    printBas(ofb_ct, ofb_ct_size);
+
+    size_t ofb_pt_size = 0;
+    gost_2015_ofd_decrypt(ofb_ct, ofb_ct_size, iv_128_ofb, arraysize(iv_128_ofb), NULL, &ofb_pt_size, &key);
+    printf("OFB plaintext size: %zd\n", ofb_pt_size);
+    uint8_t *ofb_pt_01 = (uint8_t*)malloc(ofb_pt_size);
+    gost_2015_ofd_decrypt(ofb_ct, ofb_ct_size, iv_128_ofb, arraysize(iv_128_ofb), ofb_pt_01, &ofb_pt_size, &key);
+    printBas(ofb_pt_01, ofb_pt_size);
+
+    free(ofb_pt_01);
+    free(ofb_ct);
+    */
+
+    uint8_t iv_128_cbc[] = { 0x19, 0x18, 0x17, 0x16, 0x15, 0x14, 0x13, 0x12, 0x90, 0x89, 0x78, 0x67, 0x56, 0x45, 0x34, 0x23,
+                             0x12, 0x01, 0xf0, 0xe5, 0xd4, 0xc3, 0xb2, 0xa1, 0xf0, 0xce, 0xab, 0x90, 0x78, 0x56, 0x34, 0x12 };
+
+    size_t cbc_ct_size = 0;
+    gost_2015_cbc_encrypt(pt, arraysize(pt), iv_128_cbc, arraysize(iv_128_cbc), NULL, &cbc_ct_size, &key);
+    printf("CBC ciphertext size: %zd\n", cbc_ct_size);
+    uint8_t *cbc_ct = (uint8_t*)malloc(cbc_ct_size);
+    gost_2015_cbc_encrypt(pt, arraysize(pt), iv_128_cbc, arraysize(iv_128_cbc), cbc_ct, &cbc_ct_size, &key);
+    printBas(cbc_ct, cbc_ct_size);
+
+    size_t cbc_pt_size = 0;
+    gost_2015_cbc_decrypt(cbc_ct, cbc_ct_size, iv_128_cbc, arraysize(iv_128_cbc), NULL, &cbc_pt_size, &key);
+    printf("CBC plaintext size: %zd\n", cbc_pt_size);
+    uint8_t *cbc_pt_01 = (uint8_t*)malloc(cbc_pt_size);
+    gost_2015_cbc_decrypt(cbc_ct, cbc_ct_size, iv_128_cbc, arraysize(iv_128_cbc), cbc_pt_01, &cbc_pt_size, &key);
+    printBas(cbc_pt_01, cbc_pt_size);
+
+    free(cbc_pt_01);
+    free(cbc_ct);
 
 
     printf("\n\nall done");
