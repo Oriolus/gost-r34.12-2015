@@ -285,7 +285,7 @@ int main(int argc, char *argv[])
     printB64(mac);
     */
 
-    /* testing 64bit: common data
+    ///* testing 64bit: common data
     uint8_t key64_arr[] = {
                             0xff, 0xfe, 0xfd, 0xfc, 0xfb, 0xfa, 0xf9, 0xf8, 0xf7, 0xf6, 0xf5, 0xf4, 0xf3, 0xf2, 0xf1, 0xf0,
                             0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff
@@ -301,7 +301,7 @@ int main(int argc, char *argv[])
                         0x4c, 0x02, 0xa8, 0x67, 0x2e, 0xfb, 0x98, 0x4a,
                         0x41, 0x7e, 0xb5, 0x17, 0x9b, 0x40, 0x12, 0x89
                       };
-    */
+    //*/
 
     /* testing 64bit: ECB
     size_t ecb64_cb_size = 0;
@@ -387,6 +387,36 @@ int main(int argc, char *argv[])
     free(cbc64_pt);
     free(cbc64_ct);
     */
+
+    /* testing 64bit CFB
+    uint8_t cfb64_iv[] = { 0xf1, 0xde, 0xbc, 0x0a, 0x89, 0x67, 0x45, 0x23,
+                         0xef, 0xcd, 0xab, 0x90, 0x78, 0x56, 0x34, 0x12 };
+
+    size_t cfb64_ct_size = 0;
+    size_t cfb64_blockSize = BLOCK64SIZE;
+    gost_2015_cfb_encrypt(pt64, arraysize(pt64), cfb64_iv, arraysize(cfb64_iv), NULL, &cfb64_ct_size, &key64, &cfb64_blockSize);
+    printf("CFB64 ciphertext size: %zd\n", cfb64_ct_size);
+    uint8_t *cfb64_ct = (uint8_t*)malloc(cfb64_ct_size);
+    gost_2015_cfb_encrypt(pt64, arraysize(pt64), cfb64_iv, arraysize(cfb64_iv), cfb64_ct, &cfb64_ct_size, &key64, &cfb64_blockSize);
+    printBanySize(cfb64_ct, cfb64_ct_size, BLOCK64SIZE);
+
+    size_t cfb64_pt_size = 0;
+    gost_2015_cfb_decrypt(cfb64_ct, cfb64_ct_size, cfb64_iv, arraysize(cfb64_iv), NULL, &cfb64_pt_size, &key64, &cfb64_blockSize);
+    printf("CFB64 plaintext size: %zd\n", cfb64_pt_size);
+    uint8_t *cfb64_pt = (uint8_t*)malloc(cfb64_pt_size);
+    gost_2015_cfb_decrypt(cfb64_ct, cfb64_ct_size, cfb64_iv, arraysize(cfb64_iv), cfb64_pt, &cfb64_pt_size, &key64, &cfb64_blockSize);
+    printBanySize(cfb64_pt, cfb64_pt_size, BLOCK64SIZE);
+
+    free(cfb64_pt);
+    free(cfb64_ct);
+    */
+
+    ///* testing 64bit: MAC
+    BLOCK32 mac = { 0 };
+    size_t mac_size = BLOCK32SIZE;
+    gost_2015_mac(pt64, arraysize(pt64), mac, &mac_size, &key64);
+    printB32(mac);
+    //*/
 
     printf("\n\nall done");
     getchar();
