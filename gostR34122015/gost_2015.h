@@ -3,7 +3,6 @@
 #include <assert.h>
 #include <stdlib.h>
 #include "r34122015_types.h"
-#include "r34122015_core.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,12 +25,7 @@ void gost_2015_cbc_decrypt(const uint8_t *in, const size_t in_size, const uint8_
 void gost_2015_cfb_encrypt(const uint8_t *in, const size_t in_size, const uint8_t *iv, const size_t iv_size, uint8_t *out, size_t *out_size, const gost_key *key, const size_t *ciphertext_block_size);
 void gost_2015_cfb_decrypt(const uint8_t *in, const size_t in_size, const uint8_t *iv, const size_t iv_size, uint8_t *out, size_t *out_size, const gost_key *key, const size_t *ciphertext_block_size);
 
-void ctr_inc(BLOCK128 a);
-void shl(uint8_t *full, const size_t full_size, const size_t shift_size, const uint8_t *lsb);
-
-void supplementation_01(const uint8_t *in, const size_t in_size, uint8_t *out, const size_t out_size);
-void supplementation_02(const uint8_t *in, const size_t in_size, uint8_t *out, const size_t out_size);
-void supplementation_03(const uint8_t *in, const size_t in_size, uint8_t *out, const size_t out_size);
+void gost_2015_mac(const uint8_t *in, const size_t in_size, uint8_t *mac, size_t *mac_size, const gost_key *key);
 
 #ifdef __cplusplus
 }

@@ -8,6 +8,7 @@
 #include "gost_2015.h"
 //#include "r34122015_private.h"
 #include "generating_tables.h"
+#include "r34122015_core.h"
 
 #define arraysize(a) (sizeof(a) / sizeof(a[0]))
 
@@ -251,6 +252,7 @@ int main(int argc, char *argv[])
     free(cbc_ct);
     */
 
+    /*
     uint8_t iv_128_cfb[] = { 0x19, 0x18, 0x17, 0x16, 0x15, 0x14, 0x13, 0x12, 0x90, 0x89, 0x78, 0x67, 0x56, 0x45, 0x34, 0x23,
                              0x12, 0x01, 0xf0, 0xe5, 0xd4, 0xc3, 0xb2, 0xa1, 0xf0, 0xce, 0xab, 0x90, 0x78, 0x56, 0x34, 0x12 };
 
@@ -272,6 +274,13 @@ int main(int argc, char *argv[])
 
     free(cfb_pt);
     free(cfb_ct);
+    */
+
+
+    BLOCK64 mac = { 0 };
+    size_t mac_size = BLOCK64SIZE;
+    gost_2015_mac(pt, arraysize(pt), mac, &mac_size, &key);
+    printB64(mac);
 
 
     printf("\n\nall done");

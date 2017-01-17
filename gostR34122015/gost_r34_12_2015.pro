@@ -12,6 +12,8 @@ HEADERS += \
     generating_tables.h \
     r34122015_types.h \
     r34122015_core.h \
-    gost_2015.h
+    gost_2015.h \
+    gost_2015_private.h \
+    r34122015_core_private.h
 
 DISTFILES +=
