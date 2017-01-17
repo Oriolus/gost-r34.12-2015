@@ -1,5 +1,20 @@
 #include "generating_tables.h"
 
+void printBas(uint8_t *a, size_t a_size)
+{
+    for(size_t i = 0; i < a_size; i++)
+        if(a[i] > 0xf) printf("0x%X ", a[i]);
+        else printf("0x0%X ", a[i]);
+    printf("\n");
+}
+
+void printB256(BLOCK256 a)
+{
+    for(size_t i = 0; i < BLOCK256SIZE; i++)
+        if(a[i] > 0xf) printf("0x%X ", a[i]);
+        else printf("0x0%X ", a[i]);
+    printf("\n");
+}
 
 void printB128(BLOCK128 a)
 {
@@ -9,14 +24,27 @@ void printB128(BLOCK128 a)
     printf("\n");
 }
 
-void print128key(gost128_key *key)
+void printKey(gost_key *key)
 {
-    for(size_t i = 0; i < GOST128_ROUND_KEYS_COUNT; i++)
+    if(key->bits == 64)
     {
-        for(size_t j = 0; j < GOST128_ROUND_KEY_SIZE; j++)
-            if(key->rd_key[i][j] > 0xf) printf("0x%X ", key->rd_key[i][j]);
-            else printf("0x0%X ", key->rd_key[i][j]);
-        printf("\n");
+        for(size_t i = 0; i < GOST128_ROUND_KEYS_COUNT; i++)
+        {
+            for(size_t j = 0; j < GOST128_ROUND_KEY_SIZE; j++)
+                if(key->rd_key_64[i][j] > 0xf) printf("0x%X ", key->rd_key_64[i][j]);
+                else printf("0x0%X ", key->rd_key_64[i][j]);
+            printf("\n");
+        }
+    }
+    else if(key->bits == 128)
+    {
+        for(size_t i = 0; i < GOST64_ROUND_KEYS_COUNT; i++)
+        {
+            for(size_t j = 0; j < GOST64_ROUND_KEY_SIZE; j++)
+                if(key->rd_key_128[i][j] > 0xf) printf("0x%X ", key->rd_key_128[i][j]);
+                else printf("0x0%X ", key->rd_key_128[i][j]);
+            printf("\n");
+        }
     }
 }
 
@@ -34,17 +62,6 @@ void printB32(BLOCK32 a)
         if(a[i] > 0xf) printf("0x%X ", a[i]);
         else printf("0x0%X ", a[i]);
     printf("\n");
-}
-
-void print64key(gost64_key *key)
-{
-    for(size_t i = 0; i < GOST64_ROUND_KEYS_COUNT; i++)
-    {
-        for(size_t j = 0; j < GOST64_ROUND_KEY_SIZE; j++)
-            if(key->rd_key[i][j] > 0xf) printf("0x%X ", key->rd_key[i][j]);
-            else printf("0x0%X ", key->rd_key[i][j]);
-        printf("\n");
-    }
 }
 
 uint16_t multiply(uint16_t lhs, uint16_t rhs)
