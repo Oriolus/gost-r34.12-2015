@@ -1,8 +1,10 @@
+#pragma once
+
 #include "gost_2015.h"
+#include "r34122015_core_private.h"
 
 /*
- * remake key_scheldule
- * - key size
+ * do list
  */
 
 static const uint8_t coeffL128[BLOCK128SIZE] =
@@ -326,7 +328,8 @@ static const uint8_t pi64[4][256] =
 
 void keySchedule(const uint8_t pwd[], const uint8_t bits, gost_key *key)
 {
-    if(bits == 64)
+    assert(bits == (BLOCK128SIZE << 3) || bits == (BLOCK64SIZE << 3));
+    if(bits == (BLOCK64SIZE << 3))
     {
         key->bits = bits;
         for(int i = 7, pwd_i = 0; i >= 0; i--, pwd_i++)
@@ -345,10 +348,10 @@ void keySchedule(const uint8_t pwd[], const uint8_t bits, gost_key *key)
             key->rd_key_64[i + 24][0] = key->rd_key_64[7 - i][0];
         }
     }
-    else if(bits == 128)
+    else if(bits == (BLOCK128SIZE << 3))
     {
         key->bits = bits;
-        uint8_t tmp[GOST128_ROUND_KEY_SIZE] = {0};
+        uint8_t tmp[GOST128_ROUND_KEY_SIZE] = { 0 };
         memcpy_s(key->rd_key_128[0], GOST128_ROUND_KEY_SIZE, pwd + GOST128_ROUND_KEY_SIZE, GOST128_ROUND_KEY_SIZE);
         memcpy_s(key->rd_key_128[1], GOST128_ROUND_KEY_SIZE, pwd, GOST128_ROUND_KEY_SIZE);
 
