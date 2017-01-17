@@ -151,15 +151,16 @@ int main(int argc, char *argv[])
     printB64(suppl03);
     */
 
-    uint8_t key_arr[] =
+    /* testing 128bit: common data
+    uint8_t key128_arr[] =
     {
         0xef, 0xcd, 0xab, 0x89, 0x67, 0x45, 0x23, 0x01, 0x10, 0x32, 0x54, 0x76, 0x98, 0xba, 0xdc, 0xfe,
         0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x00, 0xff, 0xee, 0xdd, 0xcc, 0xbb, 0xaa, 0x99, 0x88
     };
-    gost_key key;
-    gost_2015_set_key(key_arr, 128, &key);
+    gost_key key128;
+    gost_2015_set_key(key128_arr, 128, &key128);
 
-    uint8_t pt[] =
+    uint8_t pt128[] =
     {
         0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x00, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11,
         0x0a, 0xff, 0xee, 0xcc, 0xbb, 0xaa, 0x99, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x00,
@@ -167,8 +168,9 @@ int main(int argc, char *argv[])
         0x11, 0x00, 0x0a, 0xff, 0xee, 0xcc, 0xbb, 0xaa, 0x99, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22
     };
 
+    */
 
-    /*
+    /* testing 128bit: ECB
     size_t ecb_ct_size = 0;
     gost_2015_ecb_encrypt(pt, arraysize(pt), NULL, &ecb_ct_size, &key);
     printf("ecb_ct SIZE: %zd\n", ecb_ct_size);
@@ -188,7 +190,7 @@ int main(int argc, char *argv[])
     free(ecb_pt_01);
     */
 
-    /*
+    /* testing 128bit: CTR
     BLOCK64 iv_128_ctr = { 0xf0, 0xce, 0xab, 0x90, 0x78, 0x56, 0x34, 0x12 };
     size_t ctr_ct_size = 0;
     gost_2015_ctr_encrypt(pt, arraysize(pt), iv_128_ctr, arraysize(iv_128_ctr), NULL, &ctr_ct_size, &key);
@@ -208,7 +210,7 @@ int main(int argc, char *argv[])
     free(ctr_ct);
     */
 
-    /*
+    /* testing 128bit: OFB
     uint8_t iv_128_ofb[] = { 0x19, 0x18, 0x17, 0x16, 0x15, 0x14, 0x13, 0x12, 0x90, 0x89, 0x78, 0x67, 0x56, 0x45, 0x34, 0x23,
                              0x12, 0x01, 0xf0, 0xe5, 0xd4, 0xc3, 0xb2, 0xa1, 0xf0, 0xce, 0xab, 0x90, 0x78, 0x56, 0x34, 0x12 };
 
@@ -230,29 +232,29 @@ int main(int argc, char *argv[])
     free(ofb_ct);
     */
 
-    /*
-    uint8_t iv_128_cbc[] = { 0x19, 0x18, 0x17, 0x16, 0x15, 0x14, 0x13, 0x12, 0x90, 0x89, 0x78, 0x67, 0x56, 0x45, 0x34, 0x23,
+    /* testing 128bit: CBC
+    uint8_t cbc128_iv[] = { 0x19, 0x18, 0x17, 0x16, 0x15, 0x14, 0x13, 0x12, 0x90, 0x89, 0x78, 0x67, 0x56, 0x45, 0x34, 0x23,
                              0x12, 0x01, 0xf0, 0xe5, 0xd4, 0xc3, 0xb2, 0xa1, 0xf0, 0xce, 0xab, 0x90, 0x78, 0x56, 0x34, 0x12 };
 
-    size_t cbc_ct_size = 0;
-    gost_2015_cbc_encrypt(pt, arraysize(pt), iv_128_cbc, arraysize(iv_128_cbc), NULL, &cbc_ct_size, &key);
-    printf("CBC ciphertext size: %zd\n", cbc_ct_size);
-    uint8_t *cbc_ct = (uint8_t*)malloc(cbc_ct_size);
-    gost_2015_cbc_encrypt(pt, arraysize(pt), iv_128_cbc, arraysize(iv_128_cbc), cbc_ct, &cbc_ct_size, &key);
-    printBas(cbc_ct, cbc_ct_size);
+    size_t cbc128_ct_size = 0;
+    gost_2015_cbc_encrypt(pt128, arraysize(pt128), cbc128_iv, arraysize(cbc128_iv), NULL, &cbc128_ct_size, &key128);
+    printf("CBC ciphertext size: %zd\n", cbc128_ct_size);
+    uint8_t *cbc128_ct = (uint8_t*)malloc(cbc128_ct_size);
+    gost_2015_cbc_encrypt(pt128, arraysize(pt128), cbc128_iv, arraysize(cbc128_iv), cbc128_ct, &cbc128_ct_size, &key128);
+    printBas(cbc128_ct, cbc128_ct_size);
 
-    size_t cbc_pt_size = 0;
-    gost_2015_cbc_decrypt(cbc_ct, cbc_ct_size, iv_128_cbc, arraysize(iv_128_cbc), NULL, &cbc_pt_size, &key);
-    printf("CBC plaintext size: %zd\n", cbc_pt_size);
-    uint8_t *cbc_pt_01 = (uint8_t*)malloc(cbc_pt_size);
-    gost_2015_cbc_decrypt(cbc_ct, cbc_ct_size, iv_128_cbc, arraysize(iv_128_cbc), cbc_pt_01, &cbc_pt_size, &key);
-    printBas(cbc_pt_01, cbc_pt_size);
+    size_t cbc128_pt_size = 0;
+    gost_2015_cbc_decrypt(cbc128_ct, cbc128_ct_size, cbc128_iv, arraysize(cbc128_iv), NULL, &cbc128_pt_size, &key128);
+    printf("CBC plaintext size: %zd\n", cbc128_pt_size);
+    uint8_t *cbc128_pt = (uint8_t*)malloc(cbc128_pt_size);
+    gost_2015_cbc_decrypt(cbc128_ct, cbc128_ct_size, cbc128_iv, arraysize(cbc128_iv), cbc128_pt, &cbc128_pt_size, &key128);
+    printBas(cbc128_pt, cbc128_pt_size);
 
-    free(cbc_pt_01);
-    free(cbc_ct);
+    free(cbc128_pt);
+    free(cbc128_ct);
     */
 
-    /*
+    /* testing 128bit: CFB
     uint8_t iv_128_cfb[] = { 0x19, 0x18, 0x17, 0x16, 0x15, 0x14, 0x13, 0x12, 0x90, 0x89, 0x78, 0x67, 0x56, 0x45, 0x34, 0x23,
                              0x12, 0x01, 0xf0, 0xe5, 0xd4, 0xc3, 0xb2, 0xa1, 0xf0, 0xce, 0xab, 0x90, 0x78, 0x56, 0x34, 0x12 };
 
@@ -276,12 +278,115 @@ int main(int argc, char *argv[])
     free(cfb_ct);
     */
 
-
+    /* testing 128bit: MAC
     BLOCK64 mac = { 0 };
     size_t mac_size = BLOCK64SIZE;
     gost_2015_mac(pt, arraysize(pt), mac, &mac_size, &key);
     printB64(mac);
+    */
 
+    /* testing 64bit: common data
+    uint8_t key64_arr[] = {
+                            0xff, 0xfe, 0xfd, 0xfc, 0xfb, 0xfa, 0xf9, 0xf8, 0xf7, 0xf6, 0xf5, 0xf4, 0xf3, 0xf2, 0xf1, 0xf0,
+                            0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff
+                          };
+
+    gost_key key64;
+
+    gost_2015_set_key(key64_arr, 64, &key64);
+
+    uint8_t pt64[] = {
+                        0x59, 0x0a, 0x13, 0x3c, 0x6b, 0xf0, 0xde, 0x92,
+                        0x20, 0x9d, 0x18, 0xf8, 0x04, 0xc7, 0x54, 0xdb,
+                        0x4c, 0x02, 0xa8, 0x67, 0x2e, 0xfb, 0x98, 0x4a,
+                        0x41, 0x7e, 0xb5, 0x17, 0x9b, 0x40, 0x12, 0x89
+                      };
+    */
+
+    /* testing 64bit: ECB
+    size_t ecb64_cb_size = 0;
+    gost_2015_ecb_encrypt(pt64, arraysize(pt64), NULL, &ecb64_cb_size, &key64);
+    printf("ECB64 ciphertext size: %zd\n", ecb64_cb_size);
+    uint8_t *ecb64_ct = (uint8_t*)malloc(ecb64_cb_size);
+    gost_2015_ecb_encrypt(pt64, arraysize(pt64), ecb64_ct, &ecb64_cb_size, &key64);
+    printBanySize(ecb64_ct, ecb64_cb_size, BLOCK64SIZE);
+
+    size_t ecb64_pt_size = 0;
+    gost_2015_ecb_decrypt(ecb64_ct, ecb64_cb_size, NULL, &ecb64_pt_size, &key64);
+    printf("ECB64 plaintext size: %zd\n", ecb64_pt_size);
+    uint8_t *ecb64_pt = (uint8_t*)malloc(ecb64_pt_size);
+    gost_2015_ecb_decrypt(ecb64_ct, ecb64_cb_size, ecb64_pt, &ecb64_pt_size, &key64);
+    printBanySize(ecb64_pt, ecb64_pt_size, BLOCK64SIZE);
+
+    free(ecb64_pt);
+    free(ecb64_ct);
+    */
+
+    /* testing 64bit CTR
+    uint8_t ctr64_iv[] = { 0x78, 0x56, 0x34, 0x12 };
+    size_t ctr64_ct_size = 0;
+    gost_2015_ctr_encrypt(pt64, arraysize(pt64), ctr64_iv, arraysize(ctr64_iv), NULL, &ctr64_ct_size, &key64);
+    printf("CTR64 ciphertext size: %zd\n", ctr64_ct_size);
+    uint8_t *ctr64_ct = (uint8_t*)malloc(ctr64_ct_size);
+    gost_2015_ctr_encrypt(pt64, arraysize(pt64), ctr64_iv, arraysize(ctr64_iv), ctr64_ct, &ctr64_ct_size, &key64);
+    printBanySize(ctr64_ct, ctr64_ct_size, BLOCK64SIZE);
+
+    size_t ctr64_pt_size = 0;
+    gost_2015_ctr_decrypt(ctr64_ct, ctr64_ct_size, ctr64_iv, arraysize(ctr64_iv), NULL, &ctr64_pt_size, &key64);
+    printf("CTR64 plaintext size: %zd\n", ctr64_pt_size);
+    uint8_t *ctr64_pt = (uint8_t*)malloc(ctr64_pt_size);
+    gost_2015_ctr_decrypt(ctr64_ct, ctr64_ct_size, ctr64_iv, arraysize(ctr64_iv), ctr64_pt, &ctr64_pt_size, &key64);
+    printBanySize(ctr64_pt, ctr64_pt_size, BLOCK64SIZE);
+
+    free(ctr64_pt);
+    free(ctr64_ct);
+    */
+
+    /* testing 64bit OFB
+    uint8_t ofb64_iv[] = { 0xf1, 0xde, 0xbc, 0x0a, 0x89, 0x67, 0x45, 0x23,
+                           0xef, 0xcd, 0xab, 0x90, 0x78, 0x56, 0x34, 0x12 };
+
+    size_t ofb64_ct_size = 0;
+    gost_2015_ofb_encrypt(pt64, arraysize(pt64), ofb64_iv, sizeof(ofb64_iv), NULL, &ofb64_ct_size, &key64);
+    printf("OFB64 ciphertext size: %zd\n", ofb64_ct_size);
+    uint8_t *ofb64_ct = (uint8_t*)malloc(ofb64_ct_size);
+    gost_2015_ofb_encrypt(pt64, arraysize(pt64), ofb64_iv, sizeof(ofb64_iv), ofb64_ct, &ofb64_ct_size, &key64);
+    printBanySize(ofb64_ct, ofb64_ct_size, BLOCK64SIZE);
+
+    size_t ofb64_pt_size = 0;
+    gost_2015_ofd_decrypt(ofb64_ct, ofb64_ct_size, ofb64_iv, arraysize(ofb64_iv), NULL, &ofb64_pt_size, &key64);
+    printf("OFB64 plaintext size: %zd\n", ofb64_pt_size);
+    uint8_t *ofb64_pt = (uint8_t*)malloc(ofb64_pt_size);
+    gost_2015_ofd_decrypt(ofb64_ct, ofb64_ct_size, ofb64_iv, arraysize(ofb64_iv), ofb64_pt, &ofb64_pt_size, &key64);
+    printBanySize(ofb64_pt, ofb64_pt_size, BLOCK64SIZE);
+
+    free(ofb64_pt);
+    free(ofb64_ct);
+    */
+
+    /* testing 64bit CBC
+    uint8_t cbc64_iv[] = {
+                            0x12, 0xef, 0xcd, 0xab, 0x90, 0x78, 0x56, 0x34,
+                            0xf1, 0xde, 0xbc, 0x0a, 0x89, 0x67, 0x45, 0x23,
+                            0xef, 0xcd, 0xab, 0x90, 0x78, 0x56, 0x34, 0x12 };
+
+    size_t cbc64_ct_size = 0;
+    gost_2015_cbc_encrypt(pt64, arraysize(pt64), cbc64_iv, arraysize(cbc64_iv), NULL, &cbc64_ct_size, &key64);
+    printf("CBC64 ciphertext size: %zd\n", cbc64_ct_size);
+    uint8_t *cbc64_ct = (uint8_t*)malloc(cbc64_ct_size);
+    gost_2015_cbc_encrypt(pt64, arraysize(pt64), cbc64_iv, arraysize(cbc64_iv), cbc64_ct, &cbc64_ct_size, &key64);
+    printBanySize(cbc64_ct, cbc64_ct_size, BLOCK64SIZE);
+
+    size_t cbc64_pt_size = 0;
+    gost_2015_cbc_decrypt(cbc64_ct, cbc64_ct_size, cbc64_iv, arraysize(cbc64_iv), NULL, &cbc64_pt_size, &key64);
+    printf("CBC64 plaintext size: %zd\n", cbc64_pt_size);
+    uint8_t *cbc64_pt = (uint8_t*)malloc(cbc64_pt_size);
+    gost_2015_cbc_decrypt(cbc64_ct, cbc64_ct_size, cbc64_iv, arraysize(cbc64_iv), cbc64_pt, &cbc64_pt_size, &key64);
+    printBanySize(cbc64_pt, cbc64_pt_size, BLOCK64SIZE);
+
+    free(cbc64_pt);
+    free(cbc64_ct);
+    */
 
     printf("\n\nall done");
     getchar();

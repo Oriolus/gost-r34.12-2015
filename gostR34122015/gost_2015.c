@@ -33,7 +33,7 @@ void gost_2015_ecb_encrypt(const uint8_t *in, const size_t in_size, uint8_t *out
 
         for(; offset < max_offset; offset += BLOCK64SIZE)
         {
-            gost_r3412_128_encrypt_block(in + offset, out + offset, key);
+            gost_r3412_64_encrypt_block(in + offset, out + offset, key);
         }
 
         size_t left_size = in_size % BLOCK64SIZE;
@@ -42,15 +42,15 @@ void gost_2015_ecb_encrypt(const uint8_t *in, const size_t in_size, uint8_t *out
             BLOCK128 additional = { 0 };
             size_t _out_size = BLOCK128SIZE;
             supplementation_02(in + offset, left_size, additional, _out_size);
-            gost_r3412_128_encrypt_block(additional, out + offset, key);
-            gost_r3412_128_encrypt_block(additional + BLOCK64SIZE, out + (offset + BLOCK64SIZE), key);
+            gost_r3412_64_encrypt_block(additional, out + offset, key);
+            gost_r3412_64_encrypt_block(additional + BLOCK64SIZE, out + (offset + BLOCK64SIZE), key);
         }
         else
         {
             BLOCK64 additional = { 0 };
             size_t _out_size = BLOCK64SIZE;
             supplementation_02(in + offset, left_size, additional, _out_size);
-            gost_r3412_128_encrypt_block(additional, out + offset, key);
+            gost_r3412_64_encrypt_block(additional, out + offset, key);
         }
     }
     if(key->bits == 128)
@@ -134,7 +134,7 @@ void gost_2015_cbc_encrypt(const uint8_t *in, const size_t in_size, const uint8_
         for(; offset < max_offset; offset += BLOCK64SIZE)
         {
             X64((in + offset), lsr_msb, (out + offset));
-            gost_r3412_128_encrypt_block(out + offset, out + offset, key);
+            gost_r3412_64_encrypt_block(out + offset, out + offset, key);
             shl(lsr, iv_size, BLOCK64SIZE, out + offset);
         }
         size_t left_size = in_size - offset;
@@ -145,12 +145,12 @@ void gost_2015_cbc_encrypt(const uint8_t *in, const size_t in_size, const uint8_
             supplementation_02(in + offset, left_size, additional, _out_size);
 
             X64(additional, lsr_msb, (out + offset));
-            gost_r3412_128_encrypt_block(out + offset, out + offset, key);
+            gost_r3412_64_encrypt_block(out + offset, out + offset, key);
             shl(lsr, iv_size, BLOCK64SIZE, out + offset);
 
             offset += BLOCK64SIZE;
             X64((additional + BLOCK64SIZE), lsr_msb, (out + offset));
-            gost_r3412_128_encrypt_block(out + offset, out + offset, key);
+            gost_r3412_64_encrypt_block(out + offset, out + offset, key);
 
             memset(additional, 0x00, BLOCK128SIZE);
         }
@@ -161,7 +161,7 @@ void gost_2015_cbc_encrypt(const uint8_t *in, const size_t in_size, const uint8_
             supplementation_02(in + offset, left_size, additional, _out_size);
 
             X64(additional, lsr_msb, (out + offset));
-            gost_r3412_128_encrypt_block(out + offset, out + offset, key);
+            gost_r3412_64_encrypt_block(out + offset, out + offset, key);
 
             memset(additional, 0x00, BLOCK64SIZE);
         }
@@ -230,15 +230,15 @@ void gost_2015_cbc_decrypt(const uint8_t *in, const size_t in_size, const uint8_
         assert(in_size % BLOCK64SIZE == 0);
         uint8_t *lsr = (uint8_t*)malloc(iv_size);
         memcpy_s(lsr, iv_size, iv, iv_size);
-        uint8_t * const lsr_msb = lsr + iv_size - BLOCK128SIZE;
+        uint8_t * const lsr_msb = lsr + iv_size - BLOCK64SIZE;
 
         size_t offset = 0;
-        const size_t max_offset = in_size & ~(BLOCK128SIZE - 1);
-        for(; offset < max_offset; offset += BLOCK128SIZE)
+        const size_t max_offset = in_size & ~(BLOCK64SIZE - 1);
+        for(; offset < max_offset; offset += BLOCK64SIZE)
         {
             gost_r3412_64_decrypt_block(in + offset, out + offset, key);
             X64(lsr_msb, (out + offset), (out + offset));
-            shl(lsr, iv_size, BLOCK128SIZE, in + offset);
+            shl(lsr, iv_size, BLOCK64SIZE, in + offset);
         }
 
         memset(lsr, 0x00, iv_size);
@@ -279,7 +279,7 @@ void gost_2015_ctr_encrypt(const uint8_t *in, const size_t in_size, const uint8_
     {
         assert(iv_size >= BLOCK32SIZE);
         BLOCK64 _iv = { 0 };
-        memcpy_s(_iv + BLOCK64SIZE, BLOCK64SIZE, iv, BLOCK64SIZE);
+        memcpy_s(_iv + BLOCK32SIZE, BLOCK32SIZE, iv, BLOCK32SIZE);
         size_t offset = 0;
         const size_t max_offset = in_size & ~(BLOCK64SIZE - 1);
         for(; offset < max_offset ; offset += BLOCK64SIZE, ctr_inc(_iv))
@@ -347,7 +347,7 @@ void gost_2015_ofb_encrypt(const uint8_t *in, const size_t in_size, const uint8_
     }
     assert(in_size <= *out_size);
 
-    if(key->bits == 64)
+    if(key->bits == (BLOCK64SIZE << 3))
     {
         uint8_t * const lsr = (uint8_t * const)malloc(iv_size);
         memcpy_s(lsr, iv_size, iv, iv_size);
@@ -357,7 +357,7 @@ void gost_2015_ofb_encrypt(const uint8_t *in, const size_t in_size, const uint8_
         const size_t max_offset = in_size & ~(BLOCK64SIZE - 1);
         for(; offset < max_offset; offset += BLOCK64SIZE)
         {
-            gost_r3412_128_encrypt_block(lsr_msb, out + offset, key);
+            gost_r3412_64_encrypt_block(lsr_msb, out + offset, key);
             shl(lsr, iv_size, BLOCK64SIZE, out + offset);
             X64((in + offset), (out + offset), (out + offset));
         }
@@ -369,7 +369,7 @@ void gost_2015_ofb_encrypt(const uint8_t *in, const size_t in_size, const uint8_
             BLOCK64 last_in = { 0 };
             memcpy_s(last_in, BLOCK64SIZE, in + offset, left_size);
 
-            gost_r3412_128_encrypt_block(lsr_msb, last_out, key);
+            gost_r3412_64_encrypt_block(lsr_msb, last_out, key);
             X64(last_in, last_out, last_out);
             memcpy_s(out + offset, left_size, last_out, left_size);
 
@@ -379,7 +379,7 @@ void gost_2015_ofb_encrypt(const uint8_t *in, const size_t in_size, const uint8_
         memset(lsr, 0x00, iv_size);
         free(lsr);
     }
-    if(key->bits == 128)
+    if(key->bits == (BLOCK128SIZE << 3))
     {
         uint8_t * const lsr = (uint8_t * const)malloc(iv_size);
         memcpy_s(lsr, iv_size, iv, iv_size);
@@ -445,7 +445,7 @@ void gost_2015_cfb_encrypt(const uint8_t *in, const size_t in_size,
 
         for(; offset < max_offset; offset += block_size)
         {
-            gost_r3412_128_encrypt_block(lsr_msb_n, encrypted, key);
+            gost_r3412_64_encrypt_block(lsr_msb_n, encrypted, key);
             X64((in + offset), encrypted, encrypted);
             memcpy_s(out + offset, block_size, enc_msb, block_size);
             shl(lsr, iv_size, block_size, out + offset);
@@ -456,7 +456,7 @@ void gost_2015_cfb_encrypt(const uint8_t *in, const size_t in_size,
         {
             BLOCK64 last_in = { 0 };
             memcpy_s(last_in + BLOCK64SIZE - left_size, left_size, in + offset, left_size);
-            gost_r3412_128_encrypt_block(lsr_msb_n, encrypted, key);
+            gost_r3412_64_encrypt_block(lsr_msb_n, encrypted, key);
             X64(last_in, encrypted, encrypted);
             memcpy_s(out + offset, left_size, encrypted + BLOCK64SIZE - left_size, left_size);
 

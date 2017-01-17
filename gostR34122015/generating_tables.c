@@ -1,5 +1,17 @@
 #include "generating_tables.h"
 
+
+void printBanySize(uint8_t *a, const size_t a_size, const size_t symbsPerStr)
+{
+    for(size_t i = 0; i < a_size; i++)
+    {
+        if(a[i] > 0xf) printf("0x%X ", a[i]);
+        else printf("0x0%X ", a[i]);
+        if((i + 1) % symbsPerStr == 0) printf("\n");
+    }
+    printf("\n");
+}
+
 void printBas(uint8_t *a, size_t a_size)
 {
     for(size_t i = 0; i < a_size; i++)
